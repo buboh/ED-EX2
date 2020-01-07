@@ -39,10 +39,17 @@ def load_audio(fdir, fn, avg=False):
 
 
 def load_parse_xml(fdir, fn):
+    # keys used as metadata in paper
+    metakeys = ['language', 'year', 'genre', 'country', 'runtime', 'rated']
+    ratingkeys = ['metascore', 'imdbRating', 'tomatoUserRating']  # 'tomatoRating',
     with open(fdir + fn, 'rb') as f:
         obj = objectify.fromstring(f.read())
-        d = dict(obj['movie'].items())
-        return fn, d
+
+    d = dict(obj['movie'].items())
+    title = obj['movie'].attrib['title']
+    meta = {key: d[key] for key in metakeys}
+    rating = {key: d[key] for key in ratingkeys}
+    return title, meta, rating
 
 
 def load_save_all_audios(path=dev_audio):
@@ -74,33 +81,36 @@ def load_all_avg_audios(path=dev_audio_avg):
 
 def load_all_xmls():
     xmls = dir_contents(dev_xml)
-    names = []
-    dicts = []
+    titles = []
+    metadicts = []
+    ratingsdicts = []
     for x in xmls:
-        name, d = load_parse_xml(dev_xml, x)
-        names.append(name)
-        dicts.append(d)
+        name, metadata, ratings = load_parse_xml(dev_xml, x)
+        titles.append(name)
+        metadicts.append(metadata)
+        ratingsdicts.append(ratings)
 
-    xml_df = pd.DataFrame(dicts)
-    return xml_df
+    meta_df = pd.DataFrame(metadicts, index=titles)
+    ratings_df = pd.DataFrame(ratingsdicts, index=titles)
+    return meta_df, ratings_df
 
 
 def load_all():
-    audio_df = load_all_avg_audios()
-    # xml_df = load_all_xmls()
-    return
+    # audio_df = load_all_avg_audios()
+    meta, rat = load_all_xmls()
 
 
 def test():
     # load and average audio
-    audios = dir_contents(dev_audio)
-    name, df = load_audio(dev_audio, audios[0], avg=True)
-    print(df)
+    # audios = dir_contents(dev_audio)
+    # name, df = load_audio(dev_audio, audios[0], avg=True)
+    # print(df)
 
     # test loading first xml
     xmls = dir_contents(dev_xml)
-    name, d = load_parse_xml(dev_xml, xmls[0])
-    print(d)
+    name, d1, d2 = load_parse_xml(dev_xml, xmls[0])
+    print(d1)
+    print(d2)
 
 
 if __name__ == "__main__":

@@ -32,6 +32,7 @@ def dir_contents(input_dir):
 
 def load_audio(fdir, fn, avg=False):
     df = pd.read_csv(fdir + fn, sep=',', header=None)
+    df.set_index(0, inplace=True)
     if avg:
         df = df.fillna(0)
         df = df.mean(axis=1)
@@ -73,9 +74,16 @@ def load_all_avg_audios(path=dev_audio_avg):
     for a in audios:
         name, df = load_audio(path, a)
         names.append(name)
-        dfs.append(df)
+        dfs.append(df.T)
 
     audio_df = pd.concat(dfs)
+
+    # set row names
+    audio_df.set_axis(names, axis=0, inplace=True)
+
+    # set col names
+    col_names = [f'audio_{i}' for i in range(audio_df.shape[1])]
+    audio_df.set_axis(col_names, axis=1, inplace=True)
     return audio_df
 
 
@@ -96,7 +104,7 @@ def load_all_xmls():
 
 
 def load_all():
-    # audio_df = load_all_avg_audios()
+    audio_df = load_all_avg_audios()
     meta, rat = load_all_xmls()
 
 

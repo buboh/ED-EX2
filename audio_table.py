@@ -46,3 +46,6 @@ dev_data_audio = audio_data(data_dev, 'dev')
 
 # dev data import
 test_data_audio = audio_data(data_test, 'test')
+
+dev_data_audio.to_csv('data/csv_files/audio_files/dev_data_audio.csv')
+test_data_audio.to_csv('data/csv_files/audio_files/test_data_audio.csv')

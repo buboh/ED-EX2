@@ -94,3 +94,9 @@ arff.dump('data/WEKA_files/visual_files/test_data_vis.arff', vis_test.values
 arff.dump('data/WEKA_files/visual_files/test_data_vis_avg.arff', vis_test_avg.values
       , relation= 'visual_descriptors'
       , names=vis_test_avg.columns)
+
+vis_dev.to_csv('data/csv_files/visual_files/dev_data_visual.csv')
+vis_dev_avg.to_csv('data/csv_files/visual_files/dev_data_visual_avg.csv')
+
+vis_test.to_csv('data/csv_files/visual_files/test_data_visual.csv')
+vis_test_avg.to_csv('data/csv_files/visual_files/test_data_visual_avg.csv')

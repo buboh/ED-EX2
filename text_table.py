@@ -42,3 +42,6 @@ for keyword in missing_test_keywords:
 
 text_dev = pd.concat([text_dev, data_dev['goodforairplane']], axis=1, sort=True).reindex(text_dev.index)
 text_test = pd.concat([text_test, data_test['goodforairplane']], axis=1, sort=True).reindex(text_test.index)
+
+text_dev.to_csv('data/csv_files/text_files/dev_data_text.csv')
+text_test.to_csv('data/csv_files/text_files/test_data_text.csv')

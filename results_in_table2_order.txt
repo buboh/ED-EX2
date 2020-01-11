@@ -1,0 +1,12 @@
+Naive Bayes       	     textual      0.584   0.730  0.640
+k-Nearest neighbor           textual      0.538   0.720  0.567
+SVM (Gaussian Kernel)        textual      0.527   0.903  0.664
+k-Nearest neighbor           visual       0.575   0.587  0.575
+Decision tree        	     visual       0.552   0.653  0.586
+Logistic regression          visual       0.639   0.663  0.637
+SVM (Gaussian Kernel)        visual       0.555   0.940  0.696
+Random Forest                visual       0.590   0.623  0.593
+AdaBoost        	     visual       0.521   0.557  0.534
+Gradient BoostingTree        visual       0.551   0.580  0.558   
+Logistic regression            audio      0.517   0.533  0.509
+Gradient Boosting Tree         audio      0.581   0.643  0.600

@@ -41,6 +41,7 @@ def load_audio(fdir, fn, avg=False):
 
 def load_parse_xml(fdir, fn):
     # keys used as metadata in paper
+    # todo: deal with categorical values (one-hot encoding)
     metakeys = ['language', 'year', 'genre', 'country', 'runtime', 'rated']
     ratingkeys = ['metascore', 'imdbRating', 'tomatoUserRating']  # 'tomatoRating',
     with open(fdir + fn, 'rb') as f:
@@ -131,3 +132,5 @@ if __name__ == "__main__":
 # text: do nothing for now
 # visual: ??
 # XML: parse attributes, filter attributes
+
+# todo: write exporter for feature combinations (to arff files)

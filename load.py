@@ -1,7 +1,10 @@
 import os
 
 from lxml import objectify
+import numpy as np
 import pandas as pd
+
+from sklearn.preprocessing import MultiLabelBinarizer
 
 # dev paths
 dev_audio = './data/CoE_dataset/Dev_Set/audio_descriptors/'
@@ -89,24 +92,69 @@ def load_all_avg_audios(path=dev_audio_avg):
 
 
 def load_all_xmls():
-    xmls = dir_contents(dev_xml)
+    which = test_xml  # dev_xml or test_xml
+    xmls = dir_contents(which)
     titles = []
     metadicts = []
     ratingsdicts = []
     for x in xmls:
-        name, metadata, ratings = load_parse_xml(dev_xml, x)
+        name, metadata, ratings = load_parse_xml(which, x)
         titles.append(name)
         metadicts.append(metadata)
         ratingsdicts.append(ratings)
 
+    # metadata
     meta_df = pd.DataFrame(metadicts, index=titles)
+    print(meta_df.iloc[95:105, :])
+
+    # multi-hot encoding for metadata
+    tfd = {'country': None,'genre': None, 'language': None, 'rated': None}
+    for column in ['country', 'genre', 'language', 'rated']:
+        # split string into list of labels
+        col = meta_df.loc[:, column].str.split(', ')
+
+        # convert lists of labels to multi-hot-encoding
+        mlb = MultiLabelBinarizer()
+        tf = mlb.fit_transform(col)
+        tfd[column] = pd.DataFrame(tf, index=meta_df.index, columns=mlb.classes_)
+
+    runtime = meta_df.loc[:, 'runtime'].str.strip(' min')
+    runtime.replace('N/A', 0, inplace=True)
+    # runtime.fillna(0, inplace=True)
+    runtime = runtime.astype('int')
+
+    year = meta_df.loc[:, 'year'].astype('int')
+
+    # concat transformed columns
+    meta_df_tf = pd.concat([elem for elem in tfd.values()] + [runtime, year], axis=1)
+
+    # ratings
     ratings_df = pd.DataFrame(ratingsdicts, index=titles)
-    return meta_df, ratings_df
+    ratings_df.replace('N/A', np.nan, inplace=True)
+    ratings_df = ratings_df.astype('float')
+
+    # ugly, but apply wouldn't work for some reason
+    ratings_df['imdbRating'].fillna((ratings_df['imdbRating'].mean()), inplace=True)
+    ratings_df['metascore'].fillna((ratings_df['metascore'].mean()), inplace=True)
+    ratings_df['tomatoUserRating'].fillna((ratings_df['tomatoUserRating'].mean()), inplace=True)
+    # ratings_df.apply(lambda col: col.fillna(col.mean()), axis=0)
+
+    return meta_df_tf, ratings_df
 
 
 def load_all():
     audio_df = load_all_avg_audios()
     meta, rat = load_all_xmls()
+
+    # save averaged files
+    meta_save_path = './data/csv_files/metadata_files/test_data_meta.csv'
+    # rating_save_path = './data/csv_files/user_rating_files/test_data_rating.csv'
+    os.makedirs(os.path.dirname(meta_save_path), exist_ok=True)
+    # os.makedirs(os.path.dirname(rating_save_path), exist_ok=True)
+    meta.to_csv(meta_save_path)
+    # rat.to_csv(rating_save_path)
+
+    print()
 
 
 def test():

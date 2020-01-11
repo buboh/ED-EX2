@@ -20,7 +20,7 @@ def load_classifiers():
     clfs.append({'classifier': KNeighborsClassifier(), 'name': 'k-Nearest neighbor'})
     clfs.append({'classifier': NearestCentroid(), 'name': 'Nearest mean classifier'})
     clfs.append({'classifier': DecisionTreeClassifier(), 'name': 'Decision tree'})
-    clfs.append({'classifier': LogisticRegression(), 'name': 'Logistic regression'})
+    clfs.append({'classifier': LogisticRegression(), 'name': 'Logistic regression'}) # throws num_its warning
     clfs.append({'classifier': SVC(kernel='rbf'), 'name': 'SVM (Gaussian Kernel)'})  # TODO check also gamma='auto'?
     clfs.append({'classifier': BaggingClassifier(), 'name': 'Bagging'})
     clfs.append({'classifier': RandomForestClassifier(), 'name': 'Random Forest'})
@@ -91,7 +91,8 @@ def run_framework():
             scoring.precision = round(np.mean(results['test_Precision']), 3)
             scoring.recall = round(np.mean(results['test_Recall']), 3)
             scoring.f1 = round(np.mean(results['test_F1']), 3)
-            all_results.append(scoring)
+            if(scoring.precision > 0.5 and scoring.recall > 0.5 and scoring.f1 > 0.5):
+                all_results.append(scoring)
 
     return  all_results
 

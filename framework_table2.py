@@ -21,12 +21,12 @@ def load_classifiers():
     clfs.append({'classifier': NearestCentroid(), 'name': 'Nearest mean classifier'})
     clfs.append({'classifier': DecisionTreeClassifier(), 'name': 'Decision tree'})
     clfs.append({'classifier': LogisticRegression(), 'name': 'Logistic regression'})
-    clfs.append({'classifier': SVC(kernel='rbf'), 'name': 'SVM (Gaussian Kernel)'})  # also gamma='auto'?
+    clfs.append({'classifier': SVC(kernel='rbf'), 'name': 'SVM (Gaussian Kernel)'})  # TODO check also gamma='auto'?
     clfs.append({'classifier': BaggingClassifier(), 'name': 'Bagging'})
     clfs.append({'classifier': RandomForestClassifier(), 'name': 'Random Forest'})
     clfs.append({'classifier': AdaBoostClassifier(), 'name': 'AdaBoost'})
-    clfs.append({'classifier': GradientBoostingClassifier(), 'name': 'Gradient Boosting Tree'})  # is this the right one?
-    clfs.append({'classifier': GaussianNB(), 'name': 'Naive Bayes'})  # is this the right one?
+    clfs.append({'classifier': GradientBoostingClassifier(), 'name': 'Gradient Boosting Tree'})  # TODO check is this the right one?
+    clfs.append({'classifier': GaussianNB(), 'name': 'Naive Bayes'})  # TODO check is this the right one?
 
     return clfs
 

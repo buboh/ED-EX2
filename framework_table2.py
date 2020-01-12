@@ -41,13 +41,17 @@ def load_datasets():
     data = pd.read_csv('data/csv_files/text_files/dev_data_text.csv')
     datasets.append({'data': data, 'modality': 'textual'})
 
-    data = pd.read_csv('data/csv_files/visual_files/dev_data_visual.csv')
-    datasets.append({'data': data, 'modality': 'visual'})
+    # data = pd.read_csv('data/csv_files/visual_files/dev_data_visual.csv')
+    # datasets.append({'data': data, 'modality': 'visual'})
 
     data = pd.read_csv('data/csv_files/visual_files/dev_data_visual_avg.csv')
-    datasets.append({'data': data, 'modality': 'visual (avg)'})
+    datasets.append({'data': data, 'modality': 'visual'})
 
-    # TODO add metadata datasets
+    data = pd.read_csv('data/csv_files/metadata_files/dev_data_meta.csv')
+    datasets.append({'data': data, 'modality': 'metadata'})
+
+    # data = pd.read_csv('data/csv_files/metadata_files/dev_data_meta_nottf.csv')
+    # datasets.append({'data': data, 'modality': 'metadata'})
 
     return datasets
 
@@ -88,15 +92,18 @@ def run_framework():
 
         for classifier in load_classifiers():
             scoring = Scoring(classifier['name'], dataset['modality'])
-            results = cross_validate(classifier['classifier'], X, y, cv=10, scoring=setup_scoring())
-            scoring.precision = round(np.mean(results['test_Precision']), 3)
-            scoring.recall = round(np.mean(results['test_Recall']), 3)
-            scoring.f1 = round(np.mean(results['test_F1']), 3)
+
+            # get scores with all features
+            # results = cross_validate(classifier['classifier'], X, y, cv=10, scoring=setup_scoring())
+            # scoring.precision = round(np.mean(results['test_Precision']), 3)
+            # scoring.recall = round(np.mean(results['test_Recall']), 3)
+            # scoring.f1 = round(np.mean(results['test_F1']), 3)
 
             # run las vegas wrapper
-            best_f1, best_features = lvw(X, y, 100, scoring.f1, classifier['classifier'])
+            best_f1, best_features = lvw(X, y, 1000, scoring.f1, classifier['classifier'])
             selected_subspace = X.iloc[:, best_features]
 
+            # run with last vegas selected features
             results = cross_validate(classifier['classifier'], selected_subspace, y, cv=10, scoring=setup_scoring())
             scoring.precision = round(np.mean(results['test_Precision']), 3)
             scoring.recall = round(np.mean(results['test_Recall']), 3)
@@ -137,6 +144,5 @@ if __name__ == "__main__":
         list_of_tuples.append(i.to_tuple())
 
     resultsDf = pd.DataFrame(list_of_tuples, columns=['Classifier', 'Modality', 'Precision', 'Recall', 'F1', 'Best Features'])
-    resultsDf.to_csv('resultsWithLvw100x3.csv')
-    # resultsDf.to_excel('resultsWithLvw')
+    resultsDf.to_csv('lvw100.csv')
     print(resultsDf)

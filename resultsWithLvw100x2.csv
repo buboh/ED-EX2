@@ -1,0 +1,33 @@
+,Classifier,Modality,Precision,Recall,F1,Best Features
+0,k-Nearest neighbor,audio,0.627,0.78,0.675,3
+1,Logistic regression,audio,0.517,0.533,0.509,13
+2,AdaBoost,audio,0.583,0.697,0.625,11
+3,Gradient Boosting Tree,audio,0.56,0.603,0.572,13
+4,k-Nearest neighbor,textual,0.538,0.72,0.567,3282
+5,Decision tree,textual,0.651,0.777,0.68,1173
+6,Logistic regression,textual,0.556,0.613,0.576,1211
+7,SVM (Gaussian Kernel),textual,0.527,0.903,0.664,3282
+8,Bagging,textual,0.652,0.787,0.693,1976
+9,Random Forest,textual,0.578,0.833,0.673,3282
+10,AdaBoost,textual,0.635,0.787,0.69,3282
+11,Gradient Boosting Tree,textual,0.637,0.87,0.727,3282
+12,Naive Bayes,textual,0.584,0.73,0.64,3282
+13,k-Nearest neighbor,visual,0.57,0.64,0.6,1012
+14,Nearest mean classifier,visual,0.505,0.7,0.572,494
+15,Decision tree,visual,0.505,0.593,0.537,1652
+16,Logistic regression,visual,0.619,0.677,0.639,1319
+17,SVM (Gaussian Kernel),visual,0.555,0.94,0.696,1652
+18,Bagging,visual,0.596,0.577,0.575,1652
+19,Random Forest,visual,0.593,0.677,0.625,1404
+20,AdaBoost,visual,0.594,0.597,0.587,1576
+21,Gradient Boosting Tree,visual,0.617,0.673,0.639,1301
+22,Naive Bayes,visual,0.558,0.707,0.611,1072
+23,k-Nearest neighbor,visual (avg),0.64,0.657,0.645,200
+24,Decision tree,visual (avg),0.577,0.623,0.577,429
+25,Logistic regression,visual (avg),0.617,0.697,0.633,826
+26,SVM (Gaussian Kernel),visual (avg),0.584,0.847,0.689,826
+27,Bagging,visual (avg),0.708,0.653,0.648,826
+28,Random Forest,visual (avg),0.562,0.637,0.587,826
+29,AdaBoost,visual (avg),0.605,0.62,0.606,759
+30,Gradient Boosting Tree,visual (avg),0.603,0.617,0.598,826
+31,Naive Bayes,visual (avg),0.535,0.747,0.61,503

@@ -51,6 +51,27 @@ meta_visual_avg_test_arff = pd.concat([meta_test_arff, visual_avg_test], axis=1,
 meta_rating_dev_arff = pd.concat([meta_dev_arff, rating_dev], axis=1, sort=True).reindex(meta_dev_arff.index)
 meta_rating_test_arff = pd.concat([meta_test_arff, rating_test], axis=1, sort=True).reindex(meta_test_arff.index)
 
+vis_dev = pd.concat([visual_dev, data_dev['goodforairplane']], axis=1, sort=True).reindex(visual_dev.index)
+vis_dev_avg = pd.concat([visual_avg_dev, data_dev['goodforairplane']], axis=1, sort=True).reindex(visual_avg_dev.index)
+vis_test = pd.concat([visual_test, data_test['goodforairplane']], axis=1, sort=True).reindex(visual_test.index)
+vis_test_avg = pd.concat([visual_avg_test, data_test['goodforairplane']], axis=1, sort=True).reindex(visual_avg_test.index)
+
+arff.dump('data/WEKA_files/visual_files/dev_data_vis.arff', vis_dev.values
+      , relation='visual_descriptors'
+      , names=vis_dev.columns)
+
+arff.dump('data/WEKA_files/visual_files/dev_data_vis_avg.arff', vis_dev_avg.values
+      , relation='visual_descriptors'
+      , names=vis_dev_avg.columns)
+
+arff.dump('data/WEKA_files/visual_files/test_data_vis.arff', vis_test.values
+      , relation= 'visual_descriptors'
+      , names=vis_test.columns)
+
+arff.dump('data/WEKA_files/visual_files/test_data_vis_avg.arff', vis_test_avg.values
+      , relation= 'visual_descriptors'
+      , names=vis_test_avg.columns)
+
 
 arff.dump('data/WEKA_files/user_rating_files/dev_data_rating.arff', rating_dev_arff.values
       , relation='rating'

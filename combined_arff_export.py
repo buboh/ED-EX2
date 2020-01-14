@@ -11,6 +11,8 @@ data_test = pd.read_csv('data/CoE_dataset/Test_Set/test_set_inclGoodforairplane.
 
 meta_dev = pd.read_csv('data/csv_files/metadata_files/dev_data_meta.csv').set_index('Unnamed: 0')
 meta_test = pd.read_csv('data/csv_files/metadata_files/test_data_meta.csv').set_index('Unnamed: 0')
+meta_dev.columns = meta_dev.columns.str.replace(' ', '_')
+meta_test.columns = meta_test.columns.str.replace(' ', '_')
 rating_dev = pd.read_csv('data/csv_files/user_rating_files/dev_data_rating.csv').set_index('Unnamed: 0')
 rating_test = pd.read_csv('data/csv_files/user_rating_files/test_data_rating.csv').set_index('Unnamed: 0')
 

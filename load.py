@@ -44,7 +44,6 @@ def load_audio(fdir, fn, avg=False):
 
 def load_parse_xml(fdir, fn):
     # keys used as metadata in paper
-    # todo: deal with categorical values (one-hot encoding)
     metakeys = ['language', 'year', 'genre', 'country', 'runtime', 'rated']
     ratingkeys = ['metascore', 'imdbRating', 'tomatoUserRating']  # 'tomatoRating',
     with open(fdir + fn, 'rb') as f:
@@ -90,7 +89,7 @@ def load_all_avg_audios(path=dev_audio_avg):
     return audio_df
 
 
-def load_all_xmls(which=dev_xml): # dev_xml or test_xml
+def load_all_xmls(which=dev_xml):  # dev_xml or test_xml
     xmls = dir_contents(which)
     titles = []
     metadicts = []

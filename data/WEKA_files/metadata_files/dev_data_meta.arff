@@ -72,7 +72,7 @@
 @attribute War integer
 @attribute Western integer
 @attribute Yiddish integer
-@attribute goodforairplane integer
+@attribute goodforairplane {0,1}
 @attribute runtime integer
 @attribute year integer
 @data

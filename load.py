@@ -58,7 +58,6 @@ def load_parse_xml(fdir, fn):
 
 
 def load_save_all_audios(path=dev_audio):
-
     audios = dir_contents(path)
     names = []
     dfs = []
@@ -91,8 +90,7 @@ def load_all_avg_audios(path=dev_audio_avg):
     return audio_df
 
 
-def load_all_xmls():
-    which = test_xml  # dev_xml or test_xml
+def load_all_xmls(which=dev_xml): # dev_xml or test_xml
     xmls = dir_contents(which)
     titles = []
     metadicts = []
@@ -108,7 +106,7 @@ def load_all_xmls():
     print(meta_df.iloc[95:105, :])
 
     # multi-hot encoding for metadata
-    tfd = {'country': None,'genre': None, 'language': None, 'rated': None}
+    tfd = {'country': None, 'genre': None, 'language': None, 'rated': None}
     for column in ['country', 'genre', 'language', 'rated']:
         # split string into list of labels
         col = meta_df.loc[:, column].str.split(', ')
@@ -142,17 +140,20 @@ def load_all_xmls():
     return meta_df_tf, ratings_df
 
 
-def load_all():
+def load_all(save=True):
     audio_df = load_all_avg_audios()
-    meta, rat = load_all_xmls()
+    meta, rat = load_all_xmls(test_xml)
 
     # save averaged files
-    meta_save_path = './data/csv_files/metadata_files/test_data_meta.csv'
-    # rating_save_path = './data/csv_files/user_rating_files/test_data_rating.csv'
-    os.makedirs(os.path.dirname(meta_save_path), exist_ok=True)
-    # os.makedirs(os.path.dirname(rating_save_path), exist_ok=True)
-    meta.to_csv(meta_save_path)
-    # rat.to_csv(rating_save_path)
+    if save:
+        # meta_save_path = './data/csv_files/metadata_files/test_data_meta.csv'
+        rating_save_path = './data/csv_files/user_rating_files/test_data_rating.csv'
+        meta_save_path = './data/csv_files/metadata_files/dev_data_meta.csv'
+        # rating_save_path = './data/csv_files/user_rating_files/dev_data_rating.csv'
+        os.makedirs(os.path.dirname(meta_save_path), exist_ok=True)
+        os.makedirs(os.path.dirname(rating_save_path), exist_ok=True)
+        # meta.to_csv(meta_save_path)
+        rat.to_csv(rating_save_path)
 
     print()
 
@@ -173,7 +174,6 @@ def test():
 if __name__ == "__main__":
     # test()
     load_all()
-
 
 # todo: import
 # audio: import files, average each movie per line, use lines as columns/features

@@ -57,9 +57,26 @@ def load_datasets():
 
     return datasets
 
+def load_test_dataset(modality, features_position):
+    if modality == 'audio':
+        data = pd.read_csv('data/csv_files/audio_files/test_data_audio.csv')
+    if modality == 'textual':
+        data = pd.read_csv('data/csv_files/text_files/test_data_text.csv')
+    if modality == 'visual':
+        data = pd.read_csv('data/csv_files/visual_files/test_data_visual_avg.csv')
+    if modality == 'metadata':
+        data = pd.read_csv('data/csv_files/metadata_files/test_data_meta.csv')
+
+    data = preprocess_data(data)
+    result = data.iloc[:,features_position]
+    return result
 
 def load_target():
     data = pd.read_csv('data/csv_files/audio_files/dev_data_audio.csv')
+    return data['goodforairplane']
+
+def load_test_target():
+    data = pd.read_csv('data/csv_files/audio_files/test_data_audio.csv')
     return data['goodforairplane']
 
 
@@ -82,10 +99,29 @@ def setup_scoring():
         'F1': make_scorer(f1_score),
     }
 
+def lvw(X, y, iteration_number, initial_f1, classifier):
+    best_f1 = initial_f1
+    feature_space = list(set(range(X.shape[1])))
+    best_features = feature_space
+    iteration = 0
+    while iteration < iteration_number:
+        selected_features = list(set(random.sample(feature_space, random.randint(1, len(feature_space)))))
+        selected_subspace = X.iloc[:,selected_features]
+        results = cross_validate(classifier, selected_subspace, y, cv=10, scoring='f1')
+        avg_result = np.mean(results['test_score'])
+        if avg_result > best_f1 or (avg_result == best_f1 and len(selected_features) < len(feature_space)):
+            iteration = 0
+            best_features = selected_features
+            best_f1 = avg_result
+        else:
+            iteration += 1
+
+        return best_f1, best_features
 
 def run_framework():
     # framework
     all_results = []
+    selected_classifiers = []
     for dataset in load_datasets():
         data = preprocess_data(dataset['data'])
 
@@ -115,36 +151,59 @@ def run_framework():
             if scoring.precision > 0.5 and scoring.recall > 0.5 and scoring.f1 > 0.5:
                 all_results.append(scoring)
 
-    return all_results
+                # storing selected classifiers for stacking
+                selected_classifiers.append(
+                    {'classifier': classifier['classifier'],
+                     'modality': dataset['modality'],
+                     'subspace': selected_subspace,
+                     'features_position': best_features,
+                     'test': y,
+                     })
+
+    return all_results, selected_classifiers
 
 
-def lvw(X, y, iteration_number, initial_f1, classifier):
-    best_f1 = initial_f1
-    feature_space = list(set(range(X.shape[1])))
-    best_features = feature_space
-    iteration = 0
-    while iteration < iteration_number:
-        selected_features = list(set(random.sample(feature_space, random.randint(1, len(feature_space)))))
-        selected_subspace = X.iloc[:,selected_features]
-        results = cross_validate(classifier, selected_subspace, y, cv=10, scoring='f1')
-        avg_result = np.mean(results['test_score'])
-        if avg_result > best_f1 or (avg_result == best_f1 and len(selected_features) < len(feature_space)):
-            iteration = 0
-            best_features = selected_features
-            best_f1 = avg_result
-        else:
-            iteration += 1
+def fit_multiple_estimators(classifiers, X_list, y_list):
+    return [clf.fit(X, y) for clf, X, y in zip(classifiers, X_list, y_list)]
 
-        return best_f1, best_features
+
+def custom_majority_voting_estimator(estimators, X_test_list, weights=None):
+    predictions = np.asarray([clf.predict(X_test) for clf, X_test in zip(estimators, X_test_list)]).T
+    majority = np.apply_along_axis(lambda x:
+                              np.argmax(np.bincount(x,
+                                                    weights=None)),
+                              axis=1,
+                              arr=predictions.astype('int'))
+    return majority
+
+def run_majority_voting(selected_classifiers):
+    # Majority voting (test) table 3
+    feature_subspaces = []
+    classifiers = []
+    targets = []
+    X_test_list = []
+    for i in selected_classifiers:
+        classifiers.append(i['classifier'])
+        feature_subspaces.append(i['subspace'])
+        targets.append(i['test'])
+        X_test_list.append(load_test_dataset(i['modality'], i['features_position']))
+    fitted_estimators = fit_multiple_estimators(classifiers, feature_subspaces, targets)
+    prediction = custom_majority_voting_estimator(fitted_estimators, X_test_list)
+    print('Voting (test)')
+    print('Precision: ' + str(precision_score(load_test_target(), prediction)))
+    print('Recall: ' + str(recall_score(load_test_target(), prediction)))
+    print('F1: ' + str(f1_score(load_test_target(), prediction)))
 
 
 if __name__ == "__main__":
-    results = run_framework()
+    results_lvw, selected_classifiers = run_framework()
 
     list_of_tuples = []
-    for i in results:
+    for i in results_lvw:
         list_of_tuples.append(i.to_tuple())
 
-    resultsDf = pd.DataFrame(list_of_tuples, columns=['Classifier', 'Modality', 'Precision', 'Recall', 'F1', 'Best Features'])
-    resultsDf.to_csv('scikit0.22_lvw100.csv')
-    print(resultsDf)
+    results_lvwDf = pd.DataFrame(list_of_tuples, columns=['Classifier', 'Modality', 'Precision', 'Recall', 'F1', 'Best Features'])
+    results_lvwDf.to_csv('scikit0.22_lvw100.csv')
+
+    run_majority_voting(selected_classifiers)
+

@@ -4,6 +4,8 @@ import arff
 
 data_dev = pd.read_excel('data/CoE_dataset/Dev_Set/dev_set_groundtruth_and_trailers.xls', usecols =['movie', 'goodforairplane']).set_index('movie')
 data_test = pd.read_csv('data/CoE_dataset/Test_Set/test_set_inclGoodforairplane.csv', usecols =['movie', 'goodforairplane']).set_index('movie')
+data_dev.sort_index(inplace = True)
+data_test.sort_index(inplace = True)
 
 text_dev = pd.read_csv('data/CoE_dataset/Dev_Set/text_descriptors/tdf_idf_dev.csv')
 

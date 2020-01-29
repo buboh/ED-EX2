@@ -203,6 +203,7 @@ def run_table3(selected_classifiers):
     # Label stacking (cv)
     predictions = cv_estimator(fitted_estimators, feature_subspaces, load_target())
     predictions_df = pd.DataFrame(data=predictions)
+    # TODO which second-level classifier to use ?
     results = cross_validate(LogisticRegression(), predictions_df, load_target(), cv=10, scoring=setup_scoring())
     print('Label stacking (cv)')
     print('Precision: ' + str(round(np.mean(results['test_Precision']), 3)))
@@ -212,11 +213,15 @@ def run_table3(selected_classifiers):
     # Label stacking (test)
     predictions = test_estimator(fitted_estimators, X_test_list)
     predictions_df = pd.DataFrame(data=predictions)
+    # TODO which second-level classifier to use ?
     results = cross_validate(LogisticRegression(), predictions_df, load_test_target(), cv=10, scoring=setup_scoring())
     print('Label stacking (test)')
     print('Precision: ' + str(round(np.mean(results['test_Precision']), 3)))
     print('Recall: ' + str(round(np.mean(results['test_Recall']), 3)))
     print('F1: ' + str(round(np.mean(results['test_F1']), 3)))
+
+    # Label attribute stacking (cv)
+    # TODO which features to use with labels ?
 
 
 if __name__ == "__main__":

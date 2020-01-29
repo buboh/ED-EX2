@@ -170,7 +170,7 @@ In this project we are trying to reproduce the results, mainly the three tables 
 \maketitle
 
 \section{Data Preprocessing}
-The paper worked with audio data, text data, visual data, metadata and user rating. The training and test data split was already done, as the corresponding files were in separate folder. However, finding the corresponding target values, the binary variable if the movie is good to watch on an airplane or not, was not as straight forward. While the spreadsheet that listed all movies that were in the dev set, contained the column \lq goodforairplane\rq, the file for the test set did not. In the whole folder structure there were some spreadsheets labeled ‘test set’ that contained the target value, but none of these had a complete match with the data files in the folders. We ended up merging the test data file with the \lq dataset\_complete.xslx\rq , in the tab \lq test\rq, from the mediaeval folder. The detail on the steps on data processing that was done really varied, so we will be discussing the different types of data separately in more detail.
+The paper worked with audio data, text data, visual data, metadata and user rating. The training and test data split was already done, as the corresponding files were in separate folder. However, finding the corresponding target values, the binary variable if the movie is good to watch on an airplane or not, was not as straight forward. While the spreadsheet that listed all movies that were in the dev set, contained the column \lq goodforairplane\rq, the file for the test set did not. In the whole folder structure there were some spreadsheets labeled ‘test set’ that contained the target value, but none of these had a complete match with the data files in the folders. We ended up merging the test data file with the \lq dataset\_complete.xslx\rq , in the tab \lq test\rq, from the mediaeval folder. This leaves us with 95 movies in the training set and 223 movies in the test set, for a total of 318. The detail on the steps on data processing that was done really varied, so we will be discussing the different types of data separately in more detail.
 
 \subsection{Audio Data}
 The audio data was comprised of one file per movie, each having 13 rows. The number of columns changed from movie to movie, but was constant for each file. We assumed the length was some kind of measure per frame or other increment of the triler. This one was probably the most well described part of the data sets inthe paper, so the preprocessing was pretty staright forward. They mention each row represents a Mel-frequency cepstral coefficient (MFCC) and that they took the average per row, filling any missing value with 0. We did just that and formed 13 audio features per movie.
@@ -179,18 +179,12 @@ The audio data was comprised of one file per movie, each having 13 rows. The num
 The visual data was not as transparent. Again provided was one file per movie, but this time with a constant dimension, 2 rows and 816 columns. The paper mentioned these being JCD, or Joint Composit Desriptors, which are used to describe and compare images. However, despite reading the corresponding papers, it was unclear how this related to the given values. They varied vastly per row, and the overall distributions per row were completely different between movies. The only consistency was that per column values were pretty consistent, so we had two approaches to deal with this part of the data set: Chosing all entries as or taking the average per column. This left us with 1652 or 826 visual features.  
 
 \subsection{Textual Data}
-In this case we had one file, one for the test and one for the training set. From the file name, \lq \rq
+In this case we had one file, one for the test and one for the training set. From the file name, \lq tf\_idf \rq, we deducted that these spreadsheets were term frequency–inverse document frequency matrices, which describe the importance of keywords in text. There were thousands of different keywords in the headers, varying in number between the two sets. The valus stopped after the 95th and the 223rd coolumn, making it quite obvious that the matrix was supposed to be transposed and the movies added as row names. We added the movies in alphabetical order, since that made the most sense. Since we did not know what exactly the values meant, we turned each entry into a dummy variable, so it showed whether a keyword was important or not. At last we removed any keyword from the test data that was not contained in the training data and inserted any missing keyword with zeros for all movies. This left us with 3284 textual features.
 
 \subsection{Metadata \& User Scores}
 
 \section{Reproducing Table 1}
-As noted in the introduction, the ``\verb|acmart|'' document class can
-be used to prepare many different kinds of documentation --- a
-double-blind initial submission of a full-length technical paper, a
-two-page SIGGRAPH Emerging Technologies abstract, a ``camera-ready''
-journal article, a SIGCHI Extended Abstract, and more --- all by
-selecting the appropriate {\itshape template style} and {\itshape
-  template parameters}.
+The first table to reproduce used a rule-based PART classifier in WEKA to evaluate Precision, Recall and F1 Score for User ratings, Visual, Metadata, Metadata + user rating and Metadata + visual. The result of the paper and ours in comparison can be seen in the following two tables. This was quite clearly outlined in the paper, however, the results were exactly the same as the first table in the \textit{Right inflight?} paper, which made us consider the possibility of them just copying the table as a whole. Our solutions vary a bit from the table in the paper, especially user ratings, which had basically no result for precision and F1.
 
 \begin{table}[]
   \caption*{Table 1 from the paper}
@@ -202,6 +196,19 @@ Visual                 & 0.447     & 0.476  & 0.458 \\
 Metadata               & 0.524     & 0.516  & 0.519 \\
 Metadata + user rating & 0.581     & 0.6    & 0.583 \\
 Metadata + visual      & 0.584     & 0.6    & 0.586 \\ \hline
+\end{tabular}
+\end{table}
+
+\begin{table}[]
+  \caption*{Table 1 reproduction}
+\begin{tabular}{llll}
+\hline
+Features used          & Precision & Recall & F1       \\ \hline
+User rating            & very low  & 0.610  & very low \\
+Visual                 & 0.545     & 0.520  & 0.526    \\
+Metadata               & 0.462     & 0.448  & 0.454    \\
+Metadata + user rating & 0.478     & 0.462  & 0.468    \\
+Metadata + visual      & 0.528     & 0.511  & 0.517    \\ \hline
 \end{tabular}
 \end{table}
 

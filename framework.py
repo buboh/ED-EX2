@@ -171,7 +171,7 @@ def custom_majority_voting_estimator(estimators, X_test_list, weights=None):
     predictions = np.asarray([clf.predict(X_test) for clf, X_test in zip(estimators, X_test_list)]).T
     majority = np.apply_along_axis(lambda x:
                               np.argmax(np.bincount(x,
-                                                    weights=None)),
+                                                    weights=weights)),
                               axis=1,
                               arr=predictions.astype('int'))
     return majority

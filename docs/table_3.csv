@@ -1,0 +1,6 @@
+Stacking Strategy,Precision,Recall,F1
+Voting (cv),0.94,0.57,0.71
+Label Stacking (cv),0.72,0.86,0.78
+Label Attribute Stacking (cv),0.71,0.79,0.75
+Voting (test),0.62,0.8,0.7
+Label Stacking (test),0.62,0.9,0.73

@@ -3,14 +3,14 @@ import numpy as np
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.neighbors import NearestCentroid
 from sklearn.tree import DecisionTreeClassifier
-from sklearn.linear_model import LogisticRegression
+from sklearn.linear_model import LogisticRegression, LinearRegression
 from sklearn.svm import SVC
 from sklearn.ensemble import BaggingClassifier
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.ensemble import AdaBoostClassifier
 from sklearn.ensemble import GradientBoostingClassifier
 from sklearn.naive_bayes import GaussianNB
-from sklearn.model_selection import cross_validate
+from sklearn.model_selection import cross_validate, cross_val_predict
 from sklearn.metrics import make_scorer, precision_score, recall_score, f1_score
 from Scoring import Scoring
 import random
@@ -43,17 +43,11 @@ def load_datasets():
     data = pd.read_csv('data/csv_files/text_files/dev_data_text.csv')
     datasets.append({'data': data, 'modality': 'textual'})
 
-    # data = pd.read_csv('data/csv_files/visual_files/dev_data_visual.csv')
-    # datasets.append({'data': data, 'modality': 'visual'})
-
     data = pd.read_csv('data/csv_files/visual_files/dev_data_visual_avg.csv')
     datasets.append({'data': data, 'modality': 'visual'})
 
     data = pd.read_csv('data/csv_files/metadata_files/dev_data_meta.csv')
     datasets.append({'data': data, 'modality': 'metadata'})
-
-    # data = pd.read_csv('data/csv_files/metadata_files/dev_data_meta_nottf.csv')
-    # datasets.append({'data': data, 'modality': 'metadata'})
 
     return datasets
 
@@ -118,7 +112,7 @@ def lvw(X, y, iteration_number, initial_f1, classifier):
 
         return best_f1, best_features
 
-def run_framework():
+def run_table2():
     # framework
     all_results = []
     selected_classifiers = []
@@ -166,18 +160,21 @@ def run_framework():
 def fit_multiple_estimators(classifiers, X_list, y_list):
     return [clf.fit(X, y) for clf, X, y in zip(classifiers, X_list, y_list)]
 
+def cv_estimator(estimators, X_list, y):
+    predictions = np.asarray([cross_val_predict(clf, X, y, cv=10) for clf, X in zip(estimators, X_list)]).T
+    return predictions
 
-def custom_majority_voting_estimator(estimators, X_test_list, weights=None):
+def test_estimator(estimators, X_test_list):
     predictions = np.asarray([clf.predict(X_test) for clf, X_test in zip(estimators, X_test_list)]).T
-    majority = np.apply_along_axis(lambda x:
-                              np.argmax(np.bincount(x,
-                                                    weights=weights)),
-                              axis=1,
-                              arr=predictions.astype('int'))
+    return predictions
+
+def majority_voting(predictions, weights=None):
+    majority = np.apply_along_axis(lambda x: np.argmax(np.bincount(x, weights=weights)),
+                                   axis=1,
+                                   arr=predictions.astype('int'))
     return majority
 
-def run_majority_voting(selected_classifiers):
-    # Majority voting (test) table 3
+def run_table3(selected_classifiers):
     feature_subspaces = []
     classifiers = []
     targets = []
@@ -188,15 +185,42 @@ def run_majority_voting(selected_classifiers):
         targets.append(i['test'])
         X_test_list.append(load_test_dataset(i['modality'], i['features_position']))
     fitted_estimators = fit_multiple_estimators(classifiers, feature_subspaces, targets)
-    prediction = custom_majority_voting_estimator(fitted_estimators, X_test_list)
+
+    # Majority voting (test)
+    prediction = majority_voting(test_estimator(fitted_estimators, X_test_list))
     print('Voting (test)')
     print('Precision: ' + str(precision_score(load_test_target(), prediction)))
     print('Recall: ' + str(recall_score(load_test_target(), prediction)))
     print('F1: ' + str(f1_score(load_test_target(), prediction)))
 
+    # Majority voting (cv)
+    prediction = majority_voting(cv_estimator(fitted_estimators, feature_subspaces, load_target()))
+    print('Voting (cv)')
+    print('Precision: ' + str(precision_score(load_target(), prediction)))
+    print('Recall: ' + str(recall_score(load_target(), prediction)))
+    print('F1: ' + str(f1_score(load_target(), prediction)))
+
+    # Label stacking (cv)
+    predictions = cv_estimator(fitted_estimators, feature_subspaces, load_target())
+    predictions_df = pd.DataFrame(data=predictions)
+    results = cross_validate(LogisticRegression(), predictions_df, load_target(), cv=10, scoring=setup_scoring())
+    print('Label stacking (cv)')
+    print('Precision: ' + str(round(np.mean(results['test_Precision']), 3)))
+    print('Recall: ' + str(round(np.mean(results['test_Recall']), 3)))
+    print('F1: ' + str(round(np.mean(results['test_F1']), 3)))
+
+    # Label stacking (test)
+    predictions = test_estimator(fitted_estimators, X_test_list)
+    predictions_df = pd.DataFrame(data=predictions)
+    results = cross_validate(LogisticRegression(), predictions_df, load_test_target(), cv=10, scoring=setup_scoring())
+    print('Label stacking (test)')
+    print('Precision: ' + str(round(np.mean(results['test_Precision']), 3)))
+    print('Recall: ' + str(round(np.mean(results['test_Recall']), 3)))
+    print('F1: ' + str(round(np.mean(results['test_F1']), 3)))
+
 
 if __name__ == "__main__":
-    results_lvw, selected_classifiers = run_framework()
+    results_lvw, selected_classifiers = run_table2()
 
     list_of_tuples = []
     for i in results_lvw:
@@ -205,5 +229,5 @@ if __name__ == "__main__":
     results_lvwDf = pd.DataFrame(list_of_tuples, columns=['Classifier', 'Modality', 'Precision', 'Recall', 'F1', 'Best Features'])
     results_lvwDf.to_csv('scikit0.22_lvw100.csv')
 
-    run_majority_voting(selected_classifiers)
+    run_table3(selected_classifiers)
 

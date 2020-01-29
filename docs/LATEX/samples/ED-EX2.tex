@@ -176,9 +176,10 @@ The paper worked with audio data, text data, visual data, metadata and user rati
 The audio data was comprised of one file per movie, each having 13 rows. The number of columns changed from movie to movie, but was constant for each file. We assumed the length was some kind of measure per frame or other increment of the triler. This one was probably the most well described part of the data sets inthe paper, so the preprocessing was pretty staright forward. They mention each row represents a Mel-frequency cepstral coefficient (MFCC) and that they took the average per row, filling any missing value with 0. We did just that and formed 13 audio features per movie.
 
 \subsection{Visual Data}
-The visual data was not as transparent.
+The visual data was not as transparent. Again provided was one file per movie, but this time with a constant dimension, 2 rows and 816 columns. The paper mentioned these being JCD, or Joint Composit Desriptors, which are used to describe and compare images. However, despite reading the corresponding papers, it was unclear how this related to the given values. They varied vastly per row, and the overall distributions per row were completely different between movies. The only consistency was that per column values were pretty consistent, so we had two approaches to deal with this part of the data set: Chosing all entries as or taking the average per column. This left us with 1652 or 826 visual features.  
 
 \subsection{Textual Data}
+In this case we had one file, one for the test and one for the training set. From the file name, \lq \rq
 
 \subsection{Metadata \& User Scores}
 

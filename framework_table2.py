@@ -14,6 +14,8 @@ from sklearn.model_selection import cross_validate
 from sklearn.metrics import make_scorer, precision_score, recall_score, f1_score
 from Scoring import Scoring
 import random
+import warnings
+warnings.filterwarnings("ignore")
 
 
 def load_classifiers():
@@ -21,13 +23,13 @@ def load_classifiers():
     clfs.append({'classifier': KNeighborsClassifier(), 'name': 'k-Nearest neighbor'})
     clfs.append({'classifier': NearestCentroid(), 'name': 'Nearest mean classifier'})
     clfs.append({'classifier': DecisionTreeClassifier(), 'name': 'Decision tree'})
-    clfs.append({'classifier': LogisticRegression(), 'name': 'Logistic regression'}) # throws num_its warning
-    clfs.append({'classifier': SVC(kernel='rbf'), 'name': 'SVM (Gaussian Kernel)'})  # TODO check also gamma='auto'?
+    clfs.append({'classifier': LogisticRegression(), 'name': 'Logistic regression'})
+    clfs.append({'classifier': SVC(kernel='rbf'), 'name': 'SVM (Gaussian Kernel)'})
     clfs.append({'classifier': BaggingClassifier(), 'name': 'Bagging'})
     clfs.append({'classifier': RandomForestClassifier(), 'name': 'Random Forest'})
     clfs.append({'classifier': AdaBoostClassifier(), 'name': 'AdaBoost'})
-    clfs.append({'classifier': GradientBoostingClassifier(), 'name': 'Gradient Boosting Tree'})  # TODO check is this the right one?
-    clfs.append({'classifier': GaussianNB(), 'name': 'Naive Bayes'})  # TODO check is this the right one?
+    clfs.append({'classifier': GradientBoostingClassifier(), 'name': 'Gradient Boosting Tree'})
+    clfs.append({'classifier': GaussianNB(), 'name': 'Naive Bayes'})
 
     return clfs
 
@@ -94,13 +96,13 @@ def run_framework():
             scoring = Scoring(classifier['name'], dataset['modality'])
 
             # get scores with all features
-            # results = cross_validate(classifier['classifier'], X, y, cv=10, scoring=setup_scoring())
-            # scoring.precision = round(np.mean(results['test_Precision']), 3)
-            # scoring.recall = round(np.mean(results['test_Recall']), 3)
-            # scoring.f1 = round(np.mean(results['test_F1']), 3)
+            results = cross_validate(classifier['classifier'], X, y, cv=10, scoring=setup_scoring())
+            scoring.precision = round(np.mean(results['test_Precision']), 3)
+            scoring.recall = round(np.mean(results['test_Recall']), 3)
+            scoring.f1 = round(np.mean(results['test_F1']), 3)
 
             # run las vegas wrapper
-            best_f1, best_features = lvw(X, y, 1000, scoring.f1, classifier['classifier'])
+            best_f1, best_features = lvw(X, y, 100, scoring.f1, classifier['classifier'])
             selected_subspace = X.iloc[:, best_features]
 
             # run with last vegas selected features
@@ -144,5 +146,5 @@ if __name__ == "__main__":
         list_of_tuples.append(i.to_tuple())
 
     resultsDf = pd.DataFrame(list_of_tuples, columns=['Classifier', 'Modality', 'Precision', 'Recall', 'F1', 'Best Features'])
-    resultsDf.to_csv('lvw100.csv')
+    resultsDf.to_csv('scikit0.22_lvw100.csv')
     print(resultsDf)

@@ -127,7 +127,7 @@
 %% The abstract is a short summary of the work to be presented in the
 %% article.
 \begin{abstract}
-In this project we are trying to reproduce the results, mainly the three tables featured, of the paper  \textit{TUD-MMC at MediaEval 2016: Context of Experience task} \cite{aa}, which is on the other using a data set described by the paper \textit{Right inﬂight? A dataset for exploring the automatic prediction of movies suitable for a watching situation. In Proceedings of the 7th International Conference on Multimedia Systems} \cite{bb}
+In this project we are trying to reproduce the results of the paper \textit{TUD-MMC at MediaEval 2016: Context of Experience task} \cite{aa}, mainly the three tables featured. The paper is using a data set described by the paper \textit{Right inﬂight? A dataset for exploring the automatic prediction of movies suitable for a watching situation. In Proceedings of the 7th International Conference on Multimedia Systems} \cite{bb}
 \end{abstract}
 
 %%
@@ -203,71 +203,35 @@ In this case we had one file, one for the test and one for the training set. Fro
 
 \subsection{User Score}
 
-
+\newpage
 \section{Reproducing Table 1}
 The first table to reproduce used a rule-based PART classifier in WEKA to evaluate Precision, Recall and F1 Score for User ratings, Visual, Metadata, Metadata + user rating and Metadata + visual. The result of the paper and ours in comparison can be seen in the following two tables. This was quite clearly outlined in the paper, however, the results were exactly the same as the first table in the \textit{Right inflight?}-paper, which made us susppect that they just copying the table as a whole. Our solutions vary a bit from the table in the paper, especially user ratings, which had basically no result for precision and F1.
 
 
 \section{Repdorucing Table 2}
-The second table we had to reproduce required two methods
+To reproduce table 2 we used scikit versions 0.22.1 and 0.18.2. First we initialized a list of 10 candidate classifiers with default parameters as stated in the paper. Next, we loaded four training datasets of different modalities; audio, textual, visual and metadata.
 
- 
+The paper states, that they employed the Las Vegas Wrapper, so we analyzed it, found some pseudocode examples and created the Las Vegas Wrapper function in python, which basically chooses the best performing subset of features based on f1 score in a stated number of iterations n.
 
+Then, we built a pipeline, where we load 10 classifiers and run them on 4 different dataset modalities with 10-fold cross-validation as stated in paper and save their scores of precision, recall and f1. Next step was to run the Las Vegas Wrapper to try to find best feature subset for each of the combinations and try to improve the f1 score. Note about Las Vegas Wrapper is that we need to input a number of iterations which is not stated in paper. We tried with different options; 50, 100,  200, 1000, 2000, 10000, and the option with 100 iterations yielded the best results. The results where quite different on each run, as Las Vegas Wrapper introduces randomness. In the end, we only add classifiers and modalities which had higher precision, recall and f1-scores than 0.5. 
 
+The results are over 30 combinations in regard to 21 combinations stated in paper. It can be seen from the table that our results outperform the results in paper. 
+Afterwards, we employed t-test on two independent samples, taking the f1 scores from the paper and our f1 scores as samples. We tried changing the scikit version to 0.18.2, changing the number of  iterations of Las Vegas Wrapper, position of Las Vegas Wrapper in code, and employing different preprocessing strategies. By employing the t-test, in each case, that paper f1 scores and our reproduced f1 scores were significantly different. 
 
-\subsection{Las Vegas Wrapper}
-\subsection{scikit part 2}
+We can conclude that we were not able to reproduce the results of table 2. The reasons are mainly connected to the lack of more elaborate description of the steps in the paper. Some of the reasons that lead us to negative results can be, running the framework on different machine, employing different preprocessing strategies, Las Vegas Wrapper number of iterations, Las Vegas Wrapper position in code and version of scikit.
 
-Modifying the template --- including but not limited to: adjusting
-margins, typeface sizes, line spacing, paragraph and list definitions,
-and the use of the \verb|\vspace| command to manually adjust the
-vertical spacing between elements of your work --- is not allowed.
-
-{\bfseries Your document will be returned to you for revision if
-  modifications are discovered.}
-
+\newpage
 \section{Reproducing table 3}
+Even though the results of table 2 were not promising, we continued our work to reproduce table 3.
+When running the pipeline of table 2 for the classifiers who had precision, recall and f1-score above 0.5 we also stored information about the selected classifier, the modality and selected feature subspace. We used this array for the reproduction of table 3
 
+The task for table 3 is to employ three different stacking methods; Majority Voting, Label Stacking and Label-Feature Stacking. It was not clearly stated in the paper if scikit was used for this step. Scikit version 0.18.2 has a VotingClassifier, while scikit version has also StackingClassifier, but it is not possible to run them with different feature subspaces, rather only on one dataset. Thus, we assumed that the authors of the papers manually created custom functions for the stacking methods.
 
+For majority voting we implemented a function to fit multiple estimators, each on its selected feature subspace. As it is stated that voting is run with cross validation on training set, and on test set, we created two functions; cv\_estimator and test\_estimator. Both of them return an array of predictions on all previously selected classifiers. Then, we employ majority voting on the predictions based on the majority voting function from scikit source code.
 
-\section{Title Information}
+For label stacking, it is stated in the paper that the authors generated a matrix of all predictions given by each selected classifier, on which they try to build a second-level classifier for the final predictions. It is stated in the paper that label stacking was again, run with cross validation on training set, and on test set. Thus, we used the same functions as for majority voting to build the label matrix. It is not stated in the paper which second-level classifier they used, so we randomly chose to use LogisticRegression.
 
-The title of your work should use capital letters appropriately -
-\url{https://capitalizemytitle.com/} has useful rules for
-capitalization. Use the {\verb|title|} command to define the title of
-your work. If your work has a subtitle, define it with the
-{\verb|subtitle|} command.  Do not insert line breaks in your title.
-
-If your title is lengthy, you must define a short version to be used
-in the page headers, to prevent overlapping text. The \verb|title|
-command has a ``short title'' parameter:
-\begin{verbatim}
-  \title[short title]{full title}
-\end{verbatim}
-
-\section{Authors and Affiliations}
-
-Each author must be defined separately for accurate metadata
-identification. Multiple authors may share one affiliation. Authors'
-names should not be abbreviated; use full first names wherever
-possible. Include authors' e-mail addresses whenever possible.
-
-The \verb|authornote| and \verb|authornotemark| commands allow a note
-to apply to multiple authors --- for example, if the first two authors
-of an article contributed equally to the work.
-
-If your author list is lengthy, you must define a shortened version of
-the list of authors to be used in the page headers, to prevent
-overlapping text. The following command should be placed just after
-the last \verb|\author{}| definition:
-\begin{verbatim}
-  \renewcommand{\shortauthors}{McCartney, et al.}
-\end{verbatim}
-Omitting this command will force the use of a concatenated list of all
-of the authors' names, which may result in overlapping text in the
-page headers.
-
-
+For label attribute stacking, authors state that they combined the label matrix with features, but they do not state with which features did they combine the label matrix. As this lack of information created confusion for the implementation we did not finish this method.
 
 
 \begin{thebibliography}{2}
@@ -283,7 +247,7 @@ page headers.
 \newpage
 \appendix
 
-\section{Tables}
+\section{Tables from the paper}
 
 \begin{table}[hbt!]
   \caption*{Table 1 from the paper}
@@ -328,7 +292,7 @@ Gradient Boosting Tree & audio    & 0.56      & 0.617  & 0.58  \\ \hline
 \end{table}
 
 \begin{table}[hbt!]
-\caption*{Table 3 from the Paper}
+\caption*{Table 3 from the paper}
 \begin{tabular}{llll}
 \hline
 Stacking Strategy             & Precision & Recall & F1   \\ \hline
@@ -341,7 +305,7 @@ Label Stacking (test)         & 0.62      & 0.9    & 0.73 \\ \hline
 \end{table}
 
 \newpage
-
+\section{Reproduced Tables}
 \begin{table}[hbt!]
   \caption*{Table 1 reproduction}
 \begin{tabular}{llll}
@@ -359,7 +323,7 @@ Metadata + visual      & 0.528     & 0.511  & 0.517    \\ \hline
 \caption*{Table 2 repdroduction}
 \begin{tabular}{llllll}
 \hline
-Classifier             & Modality & Precision & Recall & F1    & BF\footnote[1]{Number of Best Features} \\ \hline
+Classifier             & Modality & Precision & Recall & F1    & BestFeatures \\ \hline
 k-Nearest neighbor     & audio    & 0.506     & 0.617  & 0.55  & 10            \\
 Decision tree          & audio    & 0.62      & 0.657  & 0.622 & 4             \\
 SVM (Gaussian Kernel)  & audio    & 0.51      & 0.737  & 0.543 & 13            \\
@@ -395,15 +359,14 @@ Gradient Boosting Tree & metadata & 0.541     & 0.567  & 0.548 & 75            \
 \end{table}
 
 \begin{table}[hbt!]
-\caption*{Table 3 reproduction UPDTATE!!!!!}
+\caption*{Table 3 reproduction}
 \begin{tabular}{llll}
 \hline
-Stacking Strategy             & Precision & Recall & F1   \\ \hline
-Voting (cv)                   & 0.94      & 0.57   & 0.71 \\
-Label Stacking (cv)           & 0.72      & 0.86   & 0.78 \\
-Label Attribute Stacking (cv) & 0.71      & 0.79   & 0.75 \\
-Voting (test)                 & 0.62      & 0.8    & 0.7  \\
-Label Stacking (test)         & 0.62      & 0.9    & 0.73 \\ \hline
+Stacking Strategy     & Precision & Recall & F1    \\ \hline
+Voting (cv)           & 0.58      & 0.87   & 0.69  \\
+Label Stacking (cv)   & 0.61      & 0.6    & 0.565 \\
+Voting (test)         & 0.61      & 0.81   & 0.69  \\
+Label Stacking (test) & 0.6       & 0.74   & 0.66  \\ \hline
 \end{tabular}
 \end{table}
 

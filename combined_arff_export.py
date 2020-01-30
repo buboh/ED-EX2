@@ -1,3 +1,5 @@
+# creates arff files for all modalities for table 1
+
 import pandas as pd
 import numpy as np
 import arff

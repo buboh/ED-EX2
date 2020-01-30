@@ -1,3 +1,5 @@
+# imports visual data, processes it and exports tables as csv and arff
+
 import pandas as pd
 import numpy as np
 import arff

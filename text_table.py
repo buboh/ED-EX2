@@ -1,3 +1,5 @@
+# code to import and create the .csv files for the processed textual data
+
 import pandas as pd
 import numpy as np
 import arff

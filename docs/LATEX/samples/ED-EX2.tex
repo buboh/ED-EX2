@@ -208,19 +208,14 @@ In this case we had one file, one for the test and one for the training set. Fro
 The first table to reproduce used a rule-based PART classifier in WEKA to evaluate Precision, Recall and F1 Score for User ratings, Visual, Metadata, Metadata + user rating and Metadata + visual. The result of the paper and ours in comparison can be seen in the following two tables. This was quite clearly outlined in the paper, however, the results were exactly the same as the first table in the \textit{Right inflight?}-paper, which made us susppect that they just copying the table as a whole. Our solutions vary a bit from the table in the paper, especially user ratings, which had basically no result for precision and F1.
 
 
-\section{Repdorucing Table 2}
+\section{Reproducing Table 2}
 To reproduce table 2 we used scikit versions 0.22.1 and 0.18.2. First we initialized a list of 10 candidate classifiers with default parameters as stated in the paper. Next, we loaded four training datasets of different modalities; audio, textual, visual and metadata.
 
 The paper states, that they employed the Las Vegas Wrapper, so we analyzed it, found some pseudocode examples and created the Las Vegas Wrapper function in python, which basically chooses the best performing subset of features based on f1 score in a stated number of iterations n.
 
-Then, we built a pipeline, where we load 10 classifiers and run them on 4 different dataset modalities with 10-fold cross-validation as stated in paper and save their scores of precision, recall and f1. Next step was to run the Las Vegas Wrapper to try to find best feature subset for each of the combinations and try to improve the f1 score. Note about Las Vegas Wrapper is that we need to input a number of iterations which is not stated in paper. We tried with different options; 50, 100,  200, 1000, 2000, 10000, and the option with 100 iterations yielded the best results. The results where quite different on each run, as Las Vegas Wrapper introduces randomness. In the end, we only add classifiers and modalities which had higher precision, recall and f1-scores than 0.5. 
+Then, we built a pipeline, where we load 10 classifiers and run them on 4 different dataset modalities with 10-fold cross-validation as stated in paper and save their scores of precision, recall and f1. Next step was to run the Las Vegas Wrapper to try to find best feature subset for each of the combinations and try to improve the f1 score. Note about Las Vegas Wrapper is that we need to input a number of iterations which is not stated in paper. We tried with different options; 50, 100,  200, 1000, 2000, 10000, and the option with 100 iterations yielded the best results. The results where quite different on each run, as Las Vegas Wrapper introduces randomness. In the end, we only add classifiers and modalities which had higher precision, recall and f1-scores than 0.5. The results are over 30 different combinations.
 
-The results are over 30 combinations in regard to 21 combinations stated in paper. It can be seen from the table that our results outperform the results in paper. 
-Afterwards, we employed t-test on two independent samples, taking the f1 scores from the paper and our f1 scores as samples. We tried changing the scikit version to 0.18.2, changing the number of  iterations of Las Vegas Wrapper, position of Las Vegas Wrapper in code, and employing different preprocessing strategies. By employing the t-test, in each case, that paper f1 scores and our reproduced f1 scores were significantly different. 
 
-We can conclude that we were not able to reproduce the results of table 2. The reasons are mainly connected to the lack of more elaborate description of the steps in the paper. Some of the reasons that lead us to negative results can be, running the framework on different machine, employing different preprocessing strategies, Las Vegas Wrapper number of iterations, Las Vegas Wrapper position in code and version of scikit.
-
-\newpage
 \section{Reproducing table 3}
 Even though the results of table 2 were not promising, we continued our work to reproduce table 3.
 When running the pipeline of table 2 for the classifiers who had precision, recall and f1-score above 0.5 we also stored information about the selected classifier, the modality and selected feature subspace. We used this array for the reproduction of table 3
@@ -232,6 +227,13 @@ For majority voting we implemented a function to fit multiple estimators, each o
 For label stacking, it is stated in the paper that the authors generated a matrix of all predictions given by each selected classifier, on which they try to build a second-level classifier for the final predictions. It is stated in the paper that label stacking was again, run with cross validation on training set, and on test set. Thus, we used the same functions as for majority voting to build the label matrix. It is not stated in the paper which second-level classifier they used, so we randomly chose to use LogisticRegression.
 
 For label attribute stacking, authors state that they combined the label matrix with features, but they do not state with which features did they combine the label matrix. As this lack of information created confusion for the implementation we did not finish this method.
+
+\section{Conclusion}
+The results for table 2 are over 30 combinations as opposed to 21 combinations stated in paper. It can be seen from the table that our results outperform the results in paper. 
+Afterwards, we employed t-test on two independent samples, taking the f1 scores from the paper and our f1 scores as samples. We tried changing the scikit version to 0.18.2, changing the number of  iterations of Las Vegas Wrapper, position of Las Vegas Wrapper in code, and employing different preprocessing strategies. By employing the t-test, in each case, that paper f1 scores and our reproduced f1 scores were significantly different. 
+
+We can conclude that we were not able to reproduce the results of table 2. The reasons are mainly connected to the lack of more elaborate description of the steps in the paper. Some of the reasons that lead us to negative results can be, running the framework on different machine, employing different preprocessing strategies, Las Vegas Wrapper number of iterations, Las Vegas Wrapper position in code and version of scikit.
+
 
 
 \begin{thebibliography}{2}

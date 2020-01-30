@@ -1,6 +1,8 @@
 # Experiment Design for Data Science - Exercise 2
 Recreating a paper: Option 1 - MediaEval
 
+This project can be found on [GitHub](https://github.com/buboh/ED-EX2/tree/development).
+
 ## Authors: 
 - Konstantin Damnjanovic (01151948)
 - Moritz Leidinger (11722966)

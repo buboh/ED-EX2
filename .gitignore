@@ -1,7 +1,0 @@
-data/CoE_dataset/Dev_Set/audio_descriptors/
-data/CoE_dataset/Test_Set/audio_descriptors/
-.venv/
-.idea/
-__pycache__
-.DS_Store
-

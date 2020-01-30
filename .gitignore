@@ -8,3 +8,5 @@ __pycache__
 *.log
 *.out
 *.aux
+*.fls
+*.fdb_latexmk

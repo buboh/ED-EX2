@@ -5,7 +5,7 @@
 % removes footnote with conference information in first column
 \pagestyle{plain}
 % removes running headers
-\acmConference{}{}{}
+\acmConference{Experiment Design}{Master Data Science}{2020}
 %%
 %% \BibTeX command to typeset BibTeX logo in the docs
 \AtBeginDocument{%
@@ -36,96 +36,62 @@
 }
 
 \begin{abstract}
-  In this project we are trying to reproduce the results of the paper \textit{TUD-MMC at MediaEval 2016: Context of Experience task} \cite{aa}, mainly the three tables featured. The paper is using a data set described by the paper \textit{Right inflight? A dataset for exploring the automatic prediction of movies suitable for a watching situation. In Proceedings of the 7th International Conference on Multimedia Systems}. \cite{bb} We present our approach to the task, the steps we took as well as challenges we encountered on the way. Finally we present, that we were able to reproduce the tables of the original paper quite well (no significant differences), but also argue that the conclusions drawn in the original paper don't perfectly match up with ours.
+  In this project we are trying to reproduce the results of the paper \textit{TUD-MMC at MediaEval 2016: Context of Experience task} \cite{MediaEval}, mainly the three tables featured. The paper is using a data set described by the paper \textit{Right inflight? A dataset for exploring the automatic prediction of movies suitable for a watching situation. In Proceedings of the 7th International Conference on Multimedia Systems} \cite{Dataset}. We present our approach to the task, the steps we took as well as challenges we encountered on the way. Finally we present, that we were able to reproduce the tables of the original paper quite well (no significant differences), but also argue that the conclusions drawn in the original paper don't perfectly match up with ours.
 \end{abstract}
 
 \maketitle
 
-\section{Data Preprocessing}
-The paper worked with different modalities:
-\begin{itemize}
-  \item {Audio data}
-  \item {Visual data}
-  \item {Metadata}
-  \item {User ratings}
-\end{itemize}
-The training and test data split was already done, as the corresponding files were in separate folder. However, finding the corresponding target values, the binary variable if the movie is good to watch on an airplane or not, was not as straight forward. While the spreadsheet that listed all movies that were in the dev set, contained the column \lq goodforairplane\rq, the file for the test set did not. In the whole folder structure there were some spreadsheets labeled ‘test set’ that contained the target value, but none of these had a complete match with the data files in the folders. We ended up merging the test data file with the \lq dataset\_complete.xslx\rq , in the tab \lq test\rq, from the mediaeval folder. This leaves us with 95 movies in the training set and 223 movies in the test set, for a total of 318. The detail on the steps on data processing that was done really varied, so we will be discussing the different types of data separately in more detail.
+\section{Data preprocessing}
 
-\subsection{Audio Data}
-The audio data was comprised of one file per movie, each having 13 rows. The number of columns changed from movie to movie, but was constant for each file. We assumed the length was some kind of measure per frame or other increment of the triler. This one was probably the most well described part of the data sets inthe paper, so the preprocessing was pretty staright forward. They mention each row represents a Mel-frequency cepstral coefficient (MFCC) and that they took the average per row, filling any missing value with 0. We did just that and formed 13 audio features per movie.
+The dataset we used was taken from a Dropbox folder found at \cite{Dropbox}. From this folder only the content of the zip-file was used. The training and test data split was already done by the dataset providers, as the corresponding files were in separate folders. However, finding the corresponding target values, the binary variable if the movie is good to watch on an airplane or not, was not as straight forward. While the spreadsheet that listed all movies that were in the dev set, contained the column \lq goodforairplane\rq, the file for the test set did not. In the whole folder structure there were some spreadsheets labeled ‘test set’ that contained the target value, but none of these had a complete match with the data files in the folders. We ended up merging the test data file with the \lq dataset\_complete.xslx\rq , in the tab \lq test\rq, from the mediaeval folder. This left us with 95 movies in the training set and 223 movies in the test set, for a total of 318. The detail on the steps on data processing that was done really varied, so we will be discussing the different types of data (audio, visual, metadata, user rating) separately in more detail.
 
-\subsection{Visual Data}
-The visual data was not as transparent. Again provided was one file per movie, but this time with a constant dimension, 2 rows and 816 columns. The paper mentioned these being JCD, or Joint Composit Desriptors, which are used to describe and compare images. However, despite reading the corresponding papers, it was unclear how this related to the given values. They varied vastly per row, and the overall distributions per row were completely different between movies. The only consistency was that per column values were pretty consistent, so we had two approaches to deal with this part of the data set: Chosing all entries as or taking the average per column. This left us with 1652 or 826 visual features.
+\subsection{Audio data}
+The audio data was comprised of one file per movie, each having 13 rows. The number of columns changed from movie to movie, but was constant for each file. We assumed the length was some kind of measure per frame or other increment of the trailer. This one was probably the most well described part of the data sets in the paper, so the preprocessing was pretty staright forward. The paper mentions each row represents a Mel-frequency cepstral coefficient (MFCC) and that they took the average per row, filling any missing value with 0. We did just that and formed 13 audio features per movie.
 
-\subsection{Textual Data}
-In this case we had one file, one for the test and one for the training set. From the file name, \lq tf\_idf \rq, we deducted that these spreadsheets were term frequency–inverse document frequency matrices, which describe the importance of keywords in text. There were thousands of different keywords in the headers, varying in number between the two sets. The valus stopped after the 95th and the 223rd coolumn, making it quite obvious that the matrix was supposed to be transposed and the movies added as row names. We added the movies in alphabetical order, since that made the most sense. Since we did not know what exactly the values meant, we turned each entry into a dummy variable, so it showed whether a keyword was important or not. At last we removed any keyword from the test data that was not contained in the training data and inserted any missing keyword with zeros for all movies. This left us with 3284 textual features.
+\subsection{Visual data}
+The visual data was not as transparent as the audio. Again one file was provided per movie, but this time with a constant dimension, 2 rows and 816 columns. The paper mentioned these being JCD, or Joint Composite Descriptors, which are used to describe and compare images. However, despite reading some papers on JCD, it was unclear how this related to the given values. They varied vastly per row, and the overall distributions per row were completely different between movies. The only consistency was that per column values were pretty consistent, so we had two approaches to deal with this part of the data set: Chosing all entries as features, so essentially appending the second row to the first one, or taking the average per column, which left us with 1652 or 826 visual features, respectively.
 
-\subsection{Metadata}
+\subsection{Textual data}
+In this case we had one file, one for the test and one for the training set. From the file name, \lq tf\_idf \rq, we deducted that these spreadsheets were term frequency–inverse document frequency matrices, which describe the importance of words (terms) in texts. There were thousands of different keywords in the headers, varying in number between training and test set. The values stopped after the 95th and the 223rd column for training and test set respectively, making it quite obvious that the matrix was supposed to be transposed and the movie titles added as row names. We decided to add them in alphabetical order, since that was the most obvious choice. Since the total values per movie varied a lot we decided to rather encode them in a binary fashion, replacing all non-zero values with 1. That way, any keyword important to a movie was represented as a 1, while all unimportant ones were as a 0. Finally we removed all columns (keywords) from the test data that were not contained in the training data and filled the test data with zeros for missing columns. This left us with 3284 textual features.
 
-\subsection{User Score}
+\subsection{Metadata \& user ratings}
+The provided metadata was contained in an XML file for each movie. These files contained a multitude of attributes of which only some were used by the original paper. For the metadata, on the one hand, those were \lq language \rq, \lq year \rq, \lq genre \rq, \lq country \rq, \lq runtime \rq, \lq rated \rq. The language, genre and country columns contained multiple values for several movies so we decided to split them up and multi-hot-encode them for all movies. Similarly, the year and rated columns were encoded, while the runtime was kept as an integer value. This resulted in a total of 77 columns for the metadata tables.
+On the other hand, only three attributes were picked from the XML file for the user ratings table. These three attributes (\lq metascore \rq, \lq imdbRating \rq and \lq tomatoUserRating \rq) were chosen since they were mentioned in the paper accompaning the dataset \cite{Dataset}. All three of these values were kept as decimal values.
 
 \newpage
 \section{Reproducing Table 1}
-The first table to reproduce used a rule-based PART classifier in WEKA to evaluate Precision, Recall and F1 Score for User ratings, Visual, Metadata, Metadata + user rating and Metadata + visual. The result of the paper and ours in comparison can be seen in the following two tables. This was quite clearly outlined in the paper, however, the results were exactly the same as the first table in the \textit{Right inflight?}-paper, which made us susppect that they just copying the table as a whole. Our solutions vary a bit from the table in the paper, especially user ratings, which had basically no result for precision and F1.
-
+The first table to reproduce used a rule-based PART classifier in WEKA to evaluate precision, recall and F1 score for user ratings, visual data, metadata, metadata + user ratings and metadata + visual data. The process to create this table was not described in the paper given to us \cite{MediaEval}, but was rather copied one-to-one from the dataset's paper \cite{Dataset}. In there however, it was outlined quite clearly how it was created. We wrote a python script to create the neccessary value combinations and export them to \texttt{.arff}-files to be loaded into WEKA. Compared to that, running the PART classifier in WEKA was very straightforward. Our results are shown in comparison to the original ones in appendix B and A, respectively. Our numbers vary only slightly from the table in the paper, especially in the case of user ratings, where we couldn't even compute the precision and F1 score, as the number of true positives was 0.
 
 \section{Reproducing Table 2}
-To reproduce table 2 we used scikit versions 0.22.1 and 0.18.2. First we initialized a list of 10 candidate classifiers with default parameters as stated in the paper. Next, we loaded four training datasets of different modalities; audio, textual, visual and metadata.
+To reproduce table 2 we used \texttt{scikit-learn} versions 0.22.1 and 0.18.2. First we initialized a list of 10 candidate classifiers with default parameters as stated in the paper and loaded the four training datasets of different modalities (audio, textual, visual and metadata). Since the paper states, that a Las Vegas Wrapper (LVW) was employed, we implemented one based on pseudocode and a github repository we found on the web. The LVW basically chooses the best performing subset of features based on F1 score in a chosen number of iterations $n$. The number of iterations was not stated in paper, so we decided to try with different options (50, 100,  200, 1000, 2000, 10000) of which 100 iterations turned out to yield the best results in the end.
 
-The paper states, that they employed the Las Vegas Wrapper, so we analyzed it, found some pseudocode examples and created the Las Vegas Wrapper function in python, which basically chooses the best performing subset of features based on f1 score in a stated number of iterations n.
+We built a pipeline, where we load the 10 classifiers and run them on the four datasets with 10-fold cross-validation as stated in paper and save their scores of precision, recall and F1. Afterwards we ran the LVW to try and find the best feature subset for each of the combinations based on the F1 score. The results were quite different on each run, as the LVW introduces randomness. In the end, only those classifiers and modalities were selected which had precision, recall and F1-scores higher than 0.5. The results are over 30 different combinations, which are shown in comparison to the original ones in appendix A and B.
 
-Then, we built a pipeline, where we load 10 classifiers and run them on 4 different dataset modalities with 10-fold cross-validation as stated in paper and save their scores of precision, recall and f1. Next step was to run the Las Vegas Wrapper to try to find best feature subset for each of the combinations and try to improve the f1 score. Note about Las Vegas Wrapper is that we need to input a number of iterations which is not stated in paper. We tried with different options; 50, 100,  200, 1000, 2000, 10000, and the option with 100 iterations yielded the best results. The results where quite different on each run, as Las Vegas Wrapper introduces randomness. In the end, we only add classifiers and modalities which had higher precision, recall and f1-scores than 0.5. The results are over 30 different combinations.
+\section{Reproducing Table 3}
+When running the pipeline of table 2 for the classifiers who had precision, recall and F1-score above 0.5, we also stored information about the selected classifier, the modality and selected feature subspace. We used this array for the reproduction of table 3
 
+The task for table 3 was to employ three different stacking methods: Majority Voting, Label Stacking and Label-Feature Stacking. It was not clearly stated in the paper if \texttt{scikit-learn} was again used for this step, but we assumed so. Scikit's version 0.18.2 has a VotingClassifier, while scikit version 0.22.1 also has a StackingClassifier, but it is not possible to run them with different feature subspaces, rather only on one dataset. Thus, we assumed that the authors of the papers manually created custom functions for the stacking methods.
 
-\section{Reproducing table 3}
-When running the pipeline of table 2 for the classifiers who had precision, recall and f1-score above 0.5 we also stored information about the selected classifier, the modality and selected feature subspace. We used this array for the reproduction of table 3
+For majority voting we therefore implemented a function to fit multiple estimators, each on its selected feature subspace. As it is stated that voting is run with cross validation on the training set and on the test set, we created two functions: \texttt{cv\_estimator} and \texttt{test\_estimator}. Both of them return an array of predictions on all previously selected classifiers. We then employ majority voting on the predictions based on the majority voting function from scikit's source code.
 
-The task for table 3 is to employ three different stacking methods; Majority Voting, Label Stacking and Label-Feature Stacking. It was not clearly stated in the paper if scikit was used for this step. Scikit version 0.18.2 has a VotingClassifier, while scikit version has also StackingClassifier, but it is not possible to run them with different feature subspaces, rather only on one dataset. Thus, we assumed that the authors of the papers manually created custom functions for the stacking methods.
+For label stacking, it is stated in the paper that the authors generated a matrix of all predictions given by each selected classifier, on which they try to build a second-level classifier for the final predictions. It is stated in the paper that label stacking was again, run with cross validation on then training and test sets. Thus, we used the same functions as for majority voting to build the label matrix. It is not stated in the paper which second-level classifier they used, so we opted to use LogisticRegression.
 
-For majority voting we implemented a function to fit multiple estimators, each on its selected feature subspace. As it is stated that voting is run with cross validation on training set, and on test set, we created two functions; cv\_estimator and test\_estimator. Both of them return an array of predictions on all previously selected classifiers. Then, we employ majority voting on the predictions based on the majority voting function from scikit source code.
+For label attribute stacking, the authors of the original paper state that they combined the label matrix with features, but they do not state with which features did they used. This lack of information made it impossible for us to finish this part of the reproduction.
 
-For label stacking, it is stated in the paper that the authors generated a matrix of all predictions given by each selected classifier, on which they try to build a second-level classifier for the final predictions. It is stated in the paper that label stacking was again, run with cross validation on training set, and on test set. Thus, we used the same functions as for majority voting to build the label matrix. It is not stated in the paper which second-level classifier they used, so we randomly chose to use LogisticRegression.
-
-For label attribute stacking, authors state that they combined the label matrix with features, but they do not state with which features did they combine the label matrix. As this lack of information created confusion for the implementation we did not finish this method.
+The results of all methods (except Label Attribute Stacking) are compared to the original ones in appendix A and B.
 
 \section{Conclusion}
-The results for table 2 are over 30 combinations as opposed to 21 combinations stated in paper. It can be seen from the table that our results outperform the results in paper.
-Afterwards, we employed t-test on two independent samples, taking the f1 scores from the paper and our f1 scores as samples. We tried changing the scikit version to 0.18.2, changing the number of  iterations of Las Vegas Wrapper, position of Las Vegas Wrapper in code, and employing different preprocessing strategies. By employing the t-test, in each case, that paper f1 scores and our reproduced f1 scores were significantly different.
+Just looking at the tables we created and comparing them to the original ones gave us the impression that our efforts weren't completely pointless after all. The numbers weren't perfect, but still seemed somehow in the range of the original ones. To confirm that suspicion, we compared our F1 scores to the original with two-sided independent t-tests (taken from the \texttt{statsmodels} package). For table 1 the test resulted in a $p$-value of 0.24, which confirmed that we shouldn't reject the $H_0$ ($\mu_0 = \mu_1$). This was also true for table 2 where the test resulted in a $p$-value of 0.67. In table 3 the $p$-value of 0.07 turned out to be just shy of a significant difference at level 0.95, which we attributed mostly to our voting classifier performing poorly and out label attribute stacking approach missing entirely (this approach was left out of the significance testing completely).
 
-We can conclude that we were not able to reproduce the results of table 2. The reasons are mainly connected to the lack of more elaborate description of the steps in the paper. Some of the reasons that lead us to negative results can be, running the framework on different machine, employing different preprocessing strategies, Las Vegas Wrapper number of iterations, Las Vegas Wrapper position in code and version of scikit.
-
-
-
-
-Significance f1: \\
-statsmodels, ttest\_ind \\
-
-table 1 (user rating left out since it was NA for us): $p = 0.24$
-$\rightarrow$ not significant
-
-table 2: $p = 0.67$
-$\rightarrow$ not significant
-
-table 3: $p = 0.07$
-$\rightarrow$ not significant (at a level of 0.95)
-
-
-Did we reproduce the results?
-steps in paper not described detailed enough
-parts missing
-we had to guess quite a bit
-
-they conclude that the ensemble was better, we can't really say that. But they didnt really say how they compared table 2 to table 3
-
-
-
-
+We can conclude, that we were able to generally reproduce the results of table 1 and 2 and the conclusions drawn from them (which modalities and classifiers to use), but didn't get very satisfing results for table 3. We attribute this mostly to the amount of information missing from the paper, especially concerning this table.
 
 \begin{thebibliography}{2}
 
-  \bibitem{aa} Cynthia C. S Liem and Bo Wang. \textit{TUD-MMC at MediaEval 2016: Context of Experience task}, 2016.
+  \bibitem{MediaEval} Cynthia C. S Liem and Bo Wang. \textit{TUD-MMC at MediaEval 2016: Context of Experience task}, 2016.
 
-  \bibitem{bb} M. Riegler, M. Larson, C. Spampinato, P. Halvorsen, M. Lux, J. Markussen, K. Pogorelov, C. Griwodz, and H. Stensland. \textit{Right inflight? A dataset for exploring the automatic prediction of movies suitable for a watching situation. In Proceedings of the 7th International Conference on Multimedia Systems}, pages 45:1–45:6. ACM, 2016.
+  \bibitem{Dataset} M. Riegler, M. Larson, C. Spampinato, P. Halvorsen, M. Lux, J. Markussen, K. Pogorelov, C. Griwodz, and H. Stensland. \textit{Right inflight? A dataset for exploring the automatic prediction of movies suitable for a watching situation. In Proceedings of the 7th International Conference on Multimedia Systems}, pages 45:1–45:6. ACM, 2016.
+
+  \bibitem{Dropbox} https://www.dropbox.com/sh/j7nunecnzfjrp2r/AAC1BAf5JEv-rGUW9h02L2X2a?dl=0
 
 \end{thebibliography}
 
@@ -175,6 +141,7 @@ they conclude that the ensemble was better, we can't really say that. But they d
     Gradient Boosting Tree  & visual   & 0.561     & 0.616  & 0.587 \\
     Logistic regression     & audio    & 0.507     & 0.597  & 0.546 \\
     Gradient Boosting Tree  & audio    & 0.56      & 0.617  & 0.58  \\ \hline
+                            &          &           &        &       \\ &&&& \\ &&&& \\ &&&& \\ &&&& \\ &&&& \\ &&&& \\ &&&& \\ &&&& \\
   \end{tabular}
 \end{table}
 
@@ -197,12 +164,12 @@ they conclude that the ensemble was better, we can't really say that. But they d
   \caption*{Table 1 reproduction}
   \begin{tabular}{llll}
     \hline
-    Features used          & Precision & Recall & F1       \\ \hline
-    User rating            & very low  & 0.610  & very low \\
-    Visual                 & 0.545     & 0.520  & 0.526    \\
-    Metadata               & 0.462     & 0.448  & 0.454    \\
-    Metadata + user rating & 0.478     & 0.462  & 0.468    \\
-    Metadata + visual      & 0.528     & 0.511  & 0.517    \\ \hline
+    Features used          & Precision & Recall & F1    \\ \hline
+    User rating            & -         & 0.610  & -     \\
+    Visual                 & 0.545     & 0.520  & 0.526 \\
+    Metadata               & 0.462     & 0.448  & 0.454 \\
+    Metadata + user rating & 0.478     & 0.462  & 0.468 \\
+    Metadata + visual      & 0.528     & 0.511  & 0.517 \\ \hline
   \end{tabular}
 \end{table}
 
@@ -210,38 +177,38 @@ they conclude that the ensemble was better, we can't really say that. But they d
   \caption*{Table 2 reproduction}
   \begin{tabular}{llllll}
     \hline
-    Classifier             & Modality & Precision & Recall & F1    & BestFeatures \\ \hline
-    k-Nearest neighbor     & audio    & 0.506     & 0.617  & 0.55  & 10           \\
-    Decision tree          & audio    & 0.62      & 0.657  & 0.622 & 4            \\
-    SVM (Gaussian Kernel)  & audio    & 0.51      & 0.737  & 0.543 & 13           \\
-    Random Forest          & audio    & 0.526     & 0.583  & 0.545 & 13           \\
-    AdaBoost               & audio    & 0.602     & 0.6    & 0.591 & 4            \\
-    Gradient Boosting Tree & audio    & 0.595     & 0.657  & 0.619 & 6            \\
-    k-Nearest neighbor     & textual  & 0.523     & 0.77   & 0.619 & 1543         \\
-    Decision tree          & textual  & 0.547     & 0.823  & 0.653 & 116          \\
-    Logistic regression    & textual  & 0.533     & 0.617  & 0.558 & 3282         \\
-    SVM (Gaussian Kernel)  & textual  & 0.527     & 0.903  & 0.664 & 3282         \\
-    Bagging                & textual  & 0.615     & 0.753  & 0.658 & 3282         \\
-    Random Forest          & textual  & 0.559     & 0.82   & 0.654 & 3282         \\
-    AdaBoost               & textual  & 0.677     & 0.887  & 0.756 & 2375         \\
-    Gradient Boosting Tree & textual  & 0.669     & 0.863  & 0.744 & 1007         \\
-    Naive Bayes            & textual  & 0.591     & 0.73   & 0.645 & 3211         \\
-    k-Nearest neighbor     & visual   & 0.614     & 0.677  & 0.641 & 757          \\
-    Decision tree          & visual   & 0.6       & 0.553  & 0.555 & 16           \\
-    Logistic regression    & visual   & 0.617     & 0.697  & 0.633 & 826          \\
-    SVM (Gaussian Kernel)  & visual   & 0.577     & 0.92   & 0.708 & 568          \\
-    Bagging                & visual   & 0.677     & 0.58   & 0.614 & 826          \\
-    Random Forest          & visual   & 0.561     & 0.607  & 0.563 & 198          \\
-    AdaBoost               & visual   & 0.606     & 0.6    & 0.592 & 826          \\
-    Gradient Boosting Tree & visual   & 0.605     & 0.617  & 0.602 & 826          \\
-    Naive Bayes            & visual   & 0.548     & 0.687  & 0.588 & 826          \\
-    k-Nearest neighbor     & metadata & 0.579     & 0.557  & 0.56  & 75           \\
-    Decision tree          & metadata & 0.558     & 0.517  & 0.533 & 39           \\
-    Logistic regression    & metadata & 0.569     & 0.54   & 0.536 & 22           \\
-    SVM (Gaussian Kernel)  & metadata & 0.548     & 1.0    & 0.707 & 75           \\
-    Random Forest          & metadata & 0.527     & 0.553  & 0.526 & 75           \\
-    AdaBoost               & metadata & 0.664     & 0.54   & 0.576 & 75           \\
-    Gradient Boosting Tree & metadata & 0.541     & 0.567  & 0.548 & 75           \\ \hline
+    Classifier             & Modality & Precision & Recall & F1    \\ \hline %& BestFeatures  
+    k-Nearest neighbor     & audio    & 0.506     & 0.617  & 0.55  \\ %& 10           
+    Decision tree          & audio    & 0.62      & 0.657  & 0.622 \\ %& 4            
+    SVM (Gaussian Kernel)  & audio    & 0.51      & 0.737  & 0.543 \\ %& 13           
+    Random Forest          & audio    & 0.526     & 0.583  & 0.545 \\ %& 13           
+    AdaBoost               & audio    & 0.602     & 0.6    & 0.591 \\ %& 4            
+    Gradient Boosting Tree & audio    & 0.595     & 0.657  & 0.619 \\ %& 6            
+    k-Nearest neighbor     & textual  & 0.523     & 0.77   & 0.619 \\ %& 1543         
+    Decision tree          & textual  & 0.547     & 0.823  & 0.653 \\ %& 116          
+    Logistic regression    & textual  & 0.533     & 0.617  & 0.558 \\ %& 3282         
+    SVM (Gaussian Kernel)  & textual  & 0.527     & 0.903  & 0.664 \\ %& 3282         
+    Bagging                & textual  & 0.615     & 0.753  & 0.658 \\ %& 3282         
+    Random Forest          & textual  & 0.559     & 0.82   & 0.654 \\ %& 3282         
+    AdaBoost               & textual  & 0.677     & 0.887  & 0.756 \\ %& 2375         
+    Gradient Boosting Tree & textual  & 0.669     & 0.863  & 0.744 \\ %& 1007         
+    Naive Bayes            & textual  & 0.591     & 0.73   & 0.645 \\ %& 3211         
+    k-Nearest neighbor     & visual   & 0.614     & 0.677  & 0.641 \\ %& 757          
+    Decision tree          & visual   & 0.6       & 0.553  & 0.555 \\ %& 16           
+    Logistic regression    & visual   & 0.617     & 0.697  & 0.633 \\ %& 826          
+    SVM (Gaussian Kernel)  & visual   & 0.577     & 0.92   & 0.708 \\ %& 568          
+    Bagging                & visual   & 0.677     & 0.58   & 0.614 \\ %& 826          
+    Random Forest          & visual   & 0.561     & 0.607  & 0.563 \\ %& 198          
+    AdaBoost               & visual   & 0.606     & 0.6    & 0.592 \\ %& 826          
+    Gradient Boosting Tree & visual   & 0.605     & 0.617  & 0.602 \\ %& 826          
+    Naive Bayes            & visual   & 0.548     & 0.687  & 0.588 \\ %& 826          
+    k-Nearest neighbor     & metadata & 0.579     & 0.557  & 0.56  \\ %& 75           
+    Decision tree          & metadata & 0.558     & 0.517  & 0.533 \\ %& 39           
+    Logistic regression    & metadata & 0.569     & 0.54   & 0.536 \\ %& 22           
+    SVM (Gaussian Kernel)  & metadata & 0.548     & 1.0    & 0.707 \\ %& 75           
+    Random Forest          & metadata & 0.527     & 0.553  & 0.526 \\ %& 75           
+    AdaBoost               & metadata & 0.664     & 0.54   & 0.576 \\ %& 75           
+    Gradient Boosting Tree & metadata & 0.541     & 0.567  & 0.548 \\ \hline %& 75            
   \end{tabular}
 \end{table}
 

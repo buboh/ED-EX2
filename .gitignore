@@ -5,3 +5,6 @@ data/CoE_dataset/Test_Set/audio_descriptors/
 __pycache__
 .DS_Store
 
+*.log
+*.out
+*.aux

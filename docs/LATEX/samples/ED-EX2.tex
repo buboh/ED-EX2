@@ -37,9 +37,8 @@
 
 
 \begin{abstract}
-In this project we are trying to reproduce the results of the paper \textit{TUD-MMC at MediaEval 2016: Context of Experience task} \cite{aa}, mainly the three tables featured. The paper is using a data set described by the paper \textit{Right inﬂight? A dataset for exploring the automatic prediction of movies suitable for a watching situation. In Proceedings of the 7th International Conference on Multimedia Systems} \cite{bb}
+In this project we are trying to reproduce the results of the paper \textit{TUD-MMC at MediaEval 2016: Context of Experience task} \cite{aa}, mainly the three tables featured. The paper is using a data set described by the paper \textit{Right inflight? A dataset for exploring the automatic prediction of movies suitable for a watching situation. In Proceedings of the 7th International Conference on Multimedia Systems} \cite{bb}
 \end{abstract}
-
 
 \maketitle
 
@@ -98,11 +97,36 @@ We can conclude that we were not able to reproduce the results of table 2. The r
 
 
 
+
+Significance f1: \\
+statsmodels, ttest\_ind \\
+
+table 1 (user rating left out since it was NA for us): $p = 0.24$
+$\rightarrow$ not significant
+
+table 2: $p = 0.67$
+$\rightarrow$ not significant
+
+table 3: $p = 0.07$
+$\rightarrow$ not significant (at a level of 0.95)
+ 
+ 
+Did we reproduce the results?
+steps in paper not described detailed enough
+parts missing
+we had to guess quite a bit
+
+they conclude that the ensemble was better, we can't really say that. But they didnt really say how they compared table 2 to table 3
+
+
+
+
+
 \begin{thebibliography}{2}
 
 \bibitem{aa} Cynthia C. S Liem and Bo Wang. \textit{TUD-MMC at MediaEval 2016: Context of Experience task}, 2016.
 
-\bibitem{bb} M. Riegler, M. Larson, C. Spampinato, P. Halvorsen, M. Lux, J. Markussen, K. Pogorelov, C. Griwodz, and H. Stensland. \textit{Right inﬂight? A dataset for exploring the automatic prediction of movies suitable for a watching situation. In Proceedings of the 7th International Conference on Multimedia Systems}, pages 45:1–45:6. ACM, 2016.
+\bibitem{bb} M. Riegler, M. Larson, C. Spampinato, P. Halvorsen, M. Lux, J. Markussen, K. Pogorelov, C. Griwodz, and H. Stensland. \textit{Right inflight? A dataset for exploring the automatic prediction of movies suitable for a watching situation. In Proceedings of the 7th International Conference on Multimedia Systems}, pages 45:1–45:6. ACM, 2016.
 
 \end{thebibliography}
 
@@ -184,7 +208,7 @@ Metadata + visual      & 0.528     & 0.511  & 0.517    \\ \hline
 \end{table}
 
 \begin{table}[hbt!]
-\caption*{Table 2 repdroduction}
+\caption*{Table 2 reproduction}
 \begin{tabular}{llllll}
 \hline
 Classifier             & Modality & Precision & Recall & F1    & BestFeatures \\ \hline

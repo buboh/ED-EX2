@@ -3,7 +3,7 @@ import numpy as np
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.neighbors import NearestCentroid
 from sklearn.tree import DecisionTreeClassifier
-from sklearn.linear_model import LogisticRegression, LinearRegression
+from sklearn.linear_model import LogisticRegression
 from sklearn.svm import SVC
 from sklearn.ensemble import BaggingClassifier
 from sklearn.ensemble import RandomForestClassifier
